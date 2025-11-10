@@ -16,45 +16,13 @@ jobs:
     - name: Set up Xcode
       run: sudo xcode-select -s /Applications/Xcode_15.0.app
 
+    - name: List available schemes
+      run: xcodebuild -list -project "fxlmenuswift.xcodeproj"
+
     - name: Build iOS App (Release)
       run: |
         xcodebuild \
           -project "fxlmenuswift.xcodeproj" \
-          -scheme "fxlmenuswift" \
+          -scheme "fxl menu swift" \
           -configuration Release \
           -derivedDataPath build clean build
-
-    - name: Archive app
-      run: |
-        xcodebuild archive \
-          -project "fxlmenuswift.xcodeproj" \
-          -scheme "fxlmenuswift" \
-          -configuration Release \
-          -archivePath ./build/fxlmenuswift.xcarchive
-
-    - name: Export .ipa
-      run: |
-        cat > ExportOptions.plist <<'PLIST'
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-        <plist version="1.0">
-        <dict>
-          <key>method</key>
-          <string>development</string>
-          <key>signingStyle</key>
-          <string>automatic</string>
-          <key>compileBitcode</key>
-          <false/>
-        </dict>
-        </plist>
-        PLIST
-        xcodebuild -exportArchive \
-          -archivePath ./build/fxlmenuswift.xcarchive \
-          -exportOptionsPlist ExportOptions.plist \
-          -exportPath ./export
-
-    - name: Upload IPA artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: fxlmenuswift-ipa
-        path: ./export/*.ipa
