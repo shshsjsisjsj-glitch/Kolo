@@ -19,10 +19,29 @@ jobs:
     - name: List available schemes
       run: xcodebuild -list -project "fxlmenuswift.xcodeproj"
 
-    - name: Build iOS App (Release)
+    - name: Build iOS App (Release, Unsigned)
       run: |
         xcodebuild \
           -project "fxlmenuswift.xcodeproj" \
           -scheme "fxl menu swift" \
           -configuration Release \
-          -derivedDataPath build clean build
+          -derivedDataPath build \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          clean build
+
+    - name: Export unsigned .ipa
+      run: |
+        mkdir -p export/Payload
+        cp -r build/Build/Products/Release-iphoneos/*.app export/Payload/
+        cd export
+        zip -r fxlmenu_unsigned.ipa Payload
+        cd ..
+
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: fxlmenu_unsigned
+        path: export/fxlmenu_unsigned.ipa
